@@ -6,21 +6,23 @@ import { baseUrl } from "../../../../config/config";
 const LeaderCard = () => {
   const [leader, setLeader] = useState(null);
 
-  const getLeaderData = async () => {
-    try {
-      const token = localStorage.getItem("leaderToken");
-
-      const res = await axios.get(`${baseUrl}/leader/get-leader`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setLeader(res.data.leader);
-    } catch (error) {
-      console.log("Error fetching leader:", error);
-    }
-  };
+  useEffect(() => {
+    const getLeaderData = async () => {
+      try {
+        const token = localStorage.getItem("leaderToken");
+        const { data } = await axios.get(`${baseUrl}/leader/get-leader`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(data);
+        setLeader(data.leader);
+      } catch (error) {
+        console.log("Error fetching leader:", error);
+      }
+    };
+    getLeaderData();
+  }, []);
 
   const leaderData = [
     {
@@ -47,10 +49,6 @@ const LeaderCard = () => {
     },
   ];
 
-  useEffect(() => {
-    getLeaderData();
-  }, []);
-
   return (
     <div className="bg-slate-900 text-slate-300 border border-slate-700 shadow-lg p-2 md:p-6 rounded-lg">
       {/* Header */}
@@ -63,10 +61,14 @@ const LeaderCard = () => {
           <p className="text-sm text-slate-500">phone: +92-123456789</p>
         </div>
 
-        <div className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2 rounded-full flex items-center gap-2">
-          <ShieldCheck size={18} className="text-green-400" />
-          <span className="font-medium">Active</span>
-        </div>
+        {leader?.isOnline ? (
+          <div className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2 rounded-full flex items-center gap-2">
+            <ShieldCheck size={18} className="text-green-400" />
+            <span className="font-medium">Active</span>
+          </div>
+        ) : (
+          "Offline"
+        )}
       </div>
 
       {/* Info Grid */}
