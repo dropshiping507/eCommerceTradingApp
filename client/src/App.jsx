@@ -27,7 +27,7 @@ import Order from "./pages/user/Order";
 import GrabOrder from "./pages/user/GrabOrder";
 import Account from "./pages/user/Account";
 import UserLayout from "./pages/user/UserLayout";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Zoom } from "react-toastify";
 import BankAddress from "./pages/user/bankCardAddress";
 import LeaderDashboard from "./pages/leader/LeaderDashboard";
 import AdminTeamPage from "./pages/leader/AdminTeamPage";
@@ -48,7 +48,19 @@ import UserSupport from "./pages/user/UserSupport";
 function App() {
   return (
     <>
-      <ToastContainer position="top-center" autoClose={3000} />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Zoom}
+      />
       <Routes>
         {/* leader routes */}
         <Route path="/leader-auth" element={<LeaderAuth />} />

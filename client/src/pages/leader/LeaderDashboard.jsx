@@ -9,10 +9,12 @@ import { baseUrl } from "../../../config/config";
 function LeaderDashboard() {
   const [adminModal, setAdminModal] = useState(false);
   const [admins, setAdmins] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const mountedRef = useRef(true);
 
   const fetchAdmins = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get(`${baseUrl}/admins/get-all-admins`);
       if (mountedRef.current && data.success) {
@@ -20,16 +22,20 @@ function LeaderDashboard() {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get(`${baseUrl}/users/all-users`);
-
       setUsers(data.users || []);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,6 +56,7 @@ function LeaderDashboard() {
         adminModal={adminModal}
         setAddAdminModal={setAdminModal}
         users={users}
+        loading={loading}
       />
 
       {/* Leader Card */}
@@ -59,12 +66,13 @@ function LeaderDashboard() {
       <StatsCard admins={admins} users={users} />
 
       {/* Admin Table */}
-      <AdminTable admins={admins} fetchAdmins={fetchAdmins} />
+      <AdminTable admins={admins} fetchAdmins={fetchAdmins} loading={loading} />
 
       {adminModal && (
         <AddAdminModal
           setAdminModal={setAdminModal}
           fetchAdmins={fetchAdmins}
+          loading={loading}
         />
       )}
     </div>

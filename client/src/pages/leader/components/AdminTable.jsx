@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { baseUrl } from "../../../../config/config";
 
-const AdminTable = ({ admins, fetchAdmins }) => {
+const AdminTable = ({ admins, fetchAdmins, loading }) => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -105,10 +105,15 @@ const AdminTable = ({ admins, fetchAdmins }) => {
               ))}
             </tr>
           </thead>
-
           {/* BODY */}
           <tbody>
-            {currentAdmins?.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-10 text-slate-500">
+                  Loading...
+                </td>
+              </tr>
+            ) : currentAdmins?.length > 0 ? (
               currentAdmins.map((admin) => (
                 <tr
                   key={admin?._id}

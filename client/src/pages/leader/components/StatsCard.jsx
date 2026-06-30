@@ -16,6 +16,7 @@ function StatsCard({ admins, users }) {
       )
     );
   }, 0);
+  console.log(admins);
 
   const totalCommission = admins.reduce((total, admin) => {
     return (
