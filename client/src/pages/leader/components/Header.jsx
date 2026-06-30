@@ -3,6 +3,7 @@ import { Headset, Menu, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../../../../config/config";
+import { toast } from "react-toastify";
 
 const Header = ({ addAdminModal, setAddAdminModal, users }) => {
   const navigate = useNavigate();
@@ -43,16 +44,36 @@ const Header = ({ addAdminModal, setAddAdminModal, users }) => {
     }
   };
 
+  // handle leader logout
+  const handleLogout = async () => {
+    try {
+      const { data } = await axios.post(
+        `${baseUrl}/leader/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("leaderToken")}`,
+          },
+        },
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        localStorage.removeItem("leaderToken");
+        navigate("/leader-auth", { replace: true });
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong.");
+    }
+  };
+
   useEffect(() => {
     fetchAllPayments();
     fetchAllWithdraws();
     fetchSupports();
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("leaderToken");
-    navigate("/leader-auth", { replace: true });
-  };
 
   const pendingRecharges = payments.filter((p) => p.status === "pending");
   const pendingWithdrawals = withdraws.filter((w) => w.status === "pending");
