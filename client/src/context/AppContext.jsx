@@ -18,30 +18,28 @@ const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [supports, setSupports] = useState([]);
 
-  const fetchUserProfile = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    try {
-      const { data } = await axios.get(`${baseUrl}/users/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setInjections(data.injections);
-      setOrders(data.orders);
-      setRecharges(data.recharges);
-      setUser(data.user);
-      setWithdrawals(data.withdrawals);
-      setSupports(data.supports);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      try {
+        const { data } = await axios.get(`${baseUrl}/users/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setInjections(data.injections);
+        setOrders(data.orders);
+        setRecharges(data.recharges);
+        setUser(data.user);
+        setWithdrawals(data.withdrawals);
+        setSupports(data.supports);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchUserProfile();
   }, []);
   return (
@@ -63,7 +61,6 @@ const AppProvider = ({ children }) => {
         setLoading,
         supports,
         setSupports,
-        fetchUserProfile,
       }}
     >
       {children}

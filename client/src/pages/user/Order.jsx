@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { baseUrl } from "../../../config/config";
 import { useApp } from "../../context/AppContext";
 const Orders = () => {
-  const { orders, setOrders, loading, fetchUserProfile } = useApp();
+  const { orders, setOrders, loading } = useApp();
 
   // confirm order
   const handleConfirmOrder = async (orderId) => {
@@ -19,7 +19,6 @@ const Orders = () => {
             order._id === orderId ? { ...order, status: "completed" } : order,
           ),
         );
-        await fetchUserProfile();
       } else {
         toast.error(data.message);
       }
@@ -42,7 +41,6 @@ const Orders = () => {
         toast.success("Order deleted successfully");
         setOrders((prev) => prev.filter((order) => order._id !== orderId));
       }
-      await fetchUserProfile();
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to delete order");

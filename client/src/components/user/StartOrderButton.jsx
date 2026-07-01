@@ -7,7 +7,7 @@ import PenguinLoader from "./PenguinLoader";
 import { baseUrl } from "../../../config/config";
 import { useApp } from "../../context/AppContext";
 export default function StartOrderButton() {
-  const { user, setUser, injections } = useApp();
+  const { user, setUser } = useApp();
   const userBalance = user?.balance;
   const [commissionArray, setCommissionArray] = useState([]);
   const [productCommission, setProductCommission] = useState(null);
@@ -36,7 +36,7 @@ export default function StartOrderButton() {
   }, []);
 
   useEffect(() => {
-    if (cycleLocked || user?.currentCycleOrders || !userBalance) return;
+    if (cycleLocked || !user?.currentCycleOrders || !userBalance) return;
 
     const pool = userBalance * 0.125;
     const parts = Number(user.currentCycleOrders);
@@ -49,89 +49,93 @@ export default function StartOrderButton() {
     setCommissionArray(split);
     setCycleLocked(true);
   }, [userBalance, cycleLocked]);
+
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
   // handle start
   const handleStartOrder = async () => {
-    if (user?.balance === 0) {
-      toast.error("you account balance is insufficient");
-      return;
-    }
     setLoader(true);
     try {
       await delay(3000);
-
-      const activeInjection = injections?.find(
-        (i) => i.status?.toLowerCase().trim() === "pending",
-      );
-
-      const currentCycleOrders = Number(user?.currentCycleOrders || 0);
-
-      // Lifetime limit reached
-      if (currentCycleOrders === 0) {
-        toast.error("You have reached the maximum order limit");
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get(`${baseUrl}/orders/check-start`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(data);
+      if (!data.success) {
+        toast.error(data.message);
         return;
       }
+      if (!data.canStart) {
+        switch (data.reason) {
+          case "LOW_BALANCE":
+            toast.error("Your account balance is insufficient.");
+            return;
 
-      // Injection required
-      if (activeInjection) {
-        const limit = Number(activeInjection?.injectionOrder || 0);
-        if (currentCycleOrders === limit) {
-          setInjectionModal(true);
+          case "NO_ORDERS":
+            toast.error("You have reached the maximum order limit.");
+            return;
 
-          try {
-            const token = localStorage.getItem("token");
-            const { data } = await axios.get(`${baseUrl}/orders/last`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
+          case "INJECTION_REQUIRED":
+            setSelectedInjection(data.injection);
             setLastOrder(data.lastOrder);
-          } catch (error) {
-            console.log(error);
-          }
+            setInjectionModal(true);
 
-          setSelectedInjection(activeInjection);
-          toast.error(
-            `Your account balance is not enough, there is a gap of $${activeInjection?.injectionCost}`,
-          );
-          return;
+            toast.error(
+              `Your account balance is not enough. There is a gap of $${data.injection.injectionCost}`,
+            );
+            return;
+
+          default:
+            toast.error("Unable to start order.");
+            return;
         }
       }
 
-      // Create order
+      // Safety check
+      if (!products.length) {
+        toast.error("Products are still loading.");
+        return;
+      }
+
+      // Random product
       const randomProduct =
         products[Math.floor(Math.random() * products.length)];
-      const newOrderId = `ORD-${randomProduct?.id}-${Date.now()}`;
-      const randomCommission = commissionArray[currentOrderIndex] || 0;
+      const randomCommission = commissionArray[currentOrderIndex] ?? 0;
+
       setProductCommission(randomCommission);
+      const newOrderId = `ORD-${randomProduct.id}-${Date.now()}`;
 
       const order = {
         id: newOrderId,
-        productId: randomProduct?.id,
-        title: randomProduct?.title,
-        image: randomProduct?.thumbnail,
-        price: randomProduct?.price,
+        productId: randomProduct.id,
+        title: randomProduct.title,
+        image: randomProduct.thumbnail,
+        price: randomProduct.price,
         quantity: 1,
-        totalAmount: randomProduct?.price,
+        totalAmount: randomProduct.price,
         commission: randomCommission,
         createdAt: new Date().toISOString(),
       };
 
       setCurrentOrder(order);
-      setSelectedProduct({ ...randomProduct, quantity: 1 });
+      setSelectedProduct({
+        ...randomProduct,
+        quantity: 1,
+      });
+
       setOrderId(newOrderId);
       setModal(true);
-      setCurrentOrderIndex((prev) => {
-        const next = prev + 1;
-        if (next >= commissionArray.length) {
-          return 0; // reset cycle
-        }
 
-        return next;
-      });
-    } catch (err) {
-      console.log(err);
+      setCurrentOrderIndex((prev) =>
+        prev + 1 >= commissionArray.length ? 0 : prev + 1,
+      );
+    } catch (error) {
+      console.log(error);
+
+      toast.error(error.response?.data?.message || "Something went wrong.");
     } finally {
       setLoader(false);
     }
@@ -154,22 +158,9 @@ export default function StartOrderButton() {
       console.log(data);
       if (data.success) {
         toast.success(data.message);
-        setUser((prev) => ({
-          ...prev,
-          user: {
-            ...prev.user,
-            completedOrders: data.user.completedOrders,
-            currentCycleOrders: data.user.currentCycleOrders,
-            commission: data.user.commission,
-            balance: data.user.balance,
-          },
-        }));
+        setUser(data.user);
       } else {
         toast.error(data.message);
-
-        if (data.block) {
-          setInjectionModal(true);
-        }
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Server error");
@@ -194,15 +185,7 @@ export default function StartOrderButton() {
 
       if (data.success) {
         toast.success(data.message);
-        setUser((prev) => ({
-          ...prev,
-          user: {
-            ...prev.user,
-            completedOrders: data.user.completedOrders,
-            currentCycleOrders: data.user.currentCycleOrders,
-            undone: data.user.undone,
-          },
-        }));
+        setUser(data.user);
       } else {
         toast.error(data.message);
 
