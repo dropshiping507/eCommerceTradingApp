@@ -61,14 +61,10 @@ const LeaderCard = () => {
           <p className="text-sm text-slate-500">phone: +92-123456789</p>
         </div>
 
-        {leader?.isOnline ? (
-          <div className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2 rounded-full flex items-center gap-2">
-            <ShieldCheck size={18} className="text-green-400" />
-            <span className="font-medium">Active</span>
-          </div>
-        ) : (
-          "Offline"
-        )}
+        <div className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2 rounded-full flex items-center gap-2">
+          <ShieldCheck size={18} className="text-green-400" />
+          <span className="font-medium">Active</span>
+        </div>
       </div>
 
       {/* Info Grid */}

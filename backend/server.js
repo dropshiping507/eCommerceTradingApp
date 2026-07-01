@@ -1,6 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const dns = require("node:dns/promises");
+
+dotenv.config();
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 const connectDB = require("./config/db");
 const createLeader = require("./seed/createLeader");
 const dns = require("node:dns/promises");

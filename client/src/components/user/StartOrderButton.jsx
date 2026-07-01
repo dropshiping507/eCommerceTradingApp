@@ -59,7 +59,7 @@ export default function StartOrderButton() {
     }
     setLoader(true);
     try {
-      // await delay(3000);
+      await delay(3000);
 
       const activeInjection = injections?.find(
         (i) => i.status?.toLowerCase().trim() === "pending",
