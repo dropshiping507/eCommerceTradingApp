@@ -3,13 +3,35 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const createLeader = require("./seed/createLeader");
+const dns = require("node:dns/promises");
+
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 dotenv.config();
 connectDB().then(() => {
   createLeader("admin", "mypassword123");
 });
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "https://mercadolibreonline.shop",
+  "http://localhost:5173",
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 // ✅ IMPORT ROUTES
