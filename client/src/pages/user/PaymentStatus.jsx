@@ -13,7 +13,7 @@ function PaymentStatus() {
   const [screenshot, setScreenshot] = useState(null);
   const [screenshotFile, setScreenshotFile] = useState(null);
 
-  const walletAddress = "TXYZ123YOURTRC20WALLETADDRESS";
+  const walletAddress = "TWNMafbkUJ2oG8bi3N7CJoMZABdeCyY9er";
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -36,7 +36,6 @@ function PaymentStatus() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log(data);
       if (data.success) {
         await fetchUserProfile();
         navigate("/recharge-history");
