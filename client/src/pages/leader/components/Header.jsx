@@ -40,8 +40,8 @@ const Header = ({ addAdminModal, setAddAdminModal }) => {
     }
   };
 
-  const pendingRecharges = allPayments.filter((p) => p.status === "pending");
-  const pendingWithdrawals = allWithdrawals.filter(
+  const pendingRecharges = allPayments?.filter((p) => p.status === "pending");
+  const pendingWithdrawals = allWithdrawals?.filter(
     (w) => w.status === "pending",
   );
 
@@ -49,7 +49,7 @@ const Header = ({ addAdminModal, setAddAdminModal }) => {
   const navButtons = (
     <>
       <button
-        onClick={() => window.location.reload()}
+        onClick={getLeaderData}
         className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 active:scale-95 shadow-sm cursor-pointer duration-300"
       >
         🔄 Refresh
@@ -71,7 +71,7 @@ const Header = ({ addAdminModal, setAddAdminModal }) => {
       >
         Recharges
         <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-          {pendingRecharges.length}
+          {pendingRecharges?.length}
         </span>
       </button>
 
@@ -81,7 +81,7 @@ const Header = ({ addAdminModal, setAddAdminModal }) => {
       >
         Withdrawals
         <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-          {pendingWithdrawals.length}
+          {pendingWithdrawals?.length}
         </span>
       </button>
 
@@ -91,7 +91,7 @@ const Header = ({ addAdminModal, setAddAdminModal }) => {
       >
         Users
         <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-          {allUsers.length}
+          {allUsers?.length}
         </span>
       </button>
     </>
