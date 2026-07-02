@@ -81,7 +81,7 @@ function WithdrawalHistory() {
 
                   {w.status === "pending" && (
                     <p className="text-xs text-yellow-600">
-                      Waiting for admin approval
+                      Waiting for approval
                     </p>
                   )}
 
