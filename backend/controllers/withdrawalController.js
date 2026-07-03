@@ -50,6 +50,12 @@ const requestWithdrawal = async (req, res) => {
         message: "Insufficient balance",
       });
     }
+    if (user.bankCard == "none") {
+      return res.json({
+        success: false,
+        message: "Please add your bank card address to proceed with withdrawal",
+      });
+    }
     const activeInjection = await Injection.findOne({
       user: userId,
       status: "pending",
@@ -58,7 +64,8 @@ const requestWithdrawal = async (req, res) => {
     if (activeInjection) {
       return res.json({
         success: false,
-        message: `You have a pending difference amount of ${"$" + activeInjection.injectionCost}`,
+        message:
+          "Your withdrawals cannot be processed at this time.You have remaining orders to be completed",
       });
     }
     const isRemainingOrders = user.currentCycleOrders > 0;
@@ -68,7 +75,6 @@ const requestWithdrawal = async (req, res) => {
         message: "You have remaining orders to be completed",
       });
     }
-
 
     await user.save();
 
@@ -206,8 +212,6 @@ const updateWithdrawalStatus = async (req, res) => {
     });
   }
 };
-
-
 
 module.exports = {
   requestWithdrawal,

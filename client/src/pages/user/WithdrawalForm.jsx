@@ -1,49 +1,21 @@
-import { useEffect, useState } from "react";
-import { Wallet, Lock, Zap, Copy } from "lucide-react";
+import { useState } from "react";
+import { Wallet, Lock, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { baseUrl } from "../../../config/config";
+import { useApp } from "../../context/AppContext";
 function WithdrawalForm() {
-  const [userData, setUserData] = useState(null);
+  const { user } = useApp();
   const navigate = useNavigate();
-  const fetchUserProfile = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const { data } = await axios.get(`${baseUrl}/users/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUserData(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
 
   const [amount, setAmount] = useState("");
-  const [copied, setCopied] = useState(false);
   const [withdrawalPassword, setWithdrawalPassword] = useState("");
-  const walletAddress = userData?.user.bankCard;
+  const walletAddress = user?.bankCard;
   const quickAmounts = [
     100, 200, 500, 1000, 2000, 5000, 10000, 30000, 50000, 100000, 200000,
     500000,
   ];
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(walletAddress);
-      setCopied(true);
-
-      setTimeout(() => setCopied(false), 1500);
-    } catch (err) {
-      console.log("Copy failed", err);
-    }
-  };
 
   const handleFormWithdraw = async () => {
     try {
@@ -60,7 +32,6 @@ function WithdrawalForm() {
           },
         },
       );
-
       if (data?.success) {
         toast.success(data.message || "Withdrawal request submitted");
         navigate("/withdrawal-history");
@@ -88,7 +59,7 @@ function WithdrawalForm() {
           <p className="text-sm text-green-600">
             Available Balance:{" "}
             <span className="font-semibold text-black">
-              ${userData?.user.balance}
+              ${user?.balance.toFixed(2)}
             </span>
           </p>
 
@@ -115,16 +86,10 @@ function WithdrawalForm() {
         <div className="border rounded-lg p-4 bg-gray-50 mb-4">
           <p className="text-sm text-gray-500 mb-2">Wallet Address</p>
 
-          <div className="flex justify-between items-center bg-gray-100 px-3 rounded-lg">
-            <p className="text-xs break-all text-gray-700">{walletAddress}</p>
-
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1 text-sm text-cyan-600 hover:text-cyan-800 transition duration-300 cursor-pointer bg-gray-200 px-4 py-2"
-            >
-              <Copy size={14} />
-              {copied ? "Copied" : "Copy"}
-            </button>
+          <div className="flex justify-between items-center bg-gray-100 rounded-lg">
+            <p className="text-xs break-all text-gray-700 p-3">
+              {walletAddress}
+            </p>
           </div>
         </div>
         {/* Amount Input */}
