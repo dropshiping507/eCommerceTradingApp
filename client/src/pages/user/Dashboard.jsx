@@ -6,10 +6,14 @@ import { membershipData } from "../../../config/membershipData";
 import { useNavigate } from "react-router-dom";
 import { Bell, Gift, MessageCircle, Wallet } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { useEffect } from "react";
 export default function Dashboard() {
-  const { user } = useApp();
+  const { user, fetchUserProfile } = useApp();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
   return (
     <div className="min-h-screen max-w-7xl mx-auto w-full">
       {/* TOP SECTION */}

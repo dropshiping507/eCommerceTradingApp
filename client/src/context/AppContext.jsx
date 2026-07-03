@@ -21,63 +21,79 @@ const AppProvider = ({ children }) => {
 
   // leader data
   const [leader, setLeader] = useState(null);
-  const [allAdmins, setAllAdmins] = useState([])
-  const [allUsers, setAllUsers] = useState([])
-  const [allPayments, setAllPayments] = useState([])
-  const [allWithdrawals, setAllWithdrawals] = useState([])
-  const [allSupports, setAllSupports] = useState([])
+  const [allAdmins, setAllAdmins] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [allPayments, setAllPayments] = useState([]);
+  const [allWithdrawals, setAllWithdrawals] = useState([]);
+  const [allSupports, setAllSupports] = useState([]);
 
-
-   const fetchUserProfile = async () => {
-     setLoading(true);
-     const token = localStorage.getItem("token");
-     try {
-       const { data } = await axios.get(`${baseUrl}/users/profile`, {
-         headers: {
-           Authorization: `Bearer ${token}`,
-         },
-       });
-       setInjections(data.injections);
-       setOrders(data.orders);
-       setRecharges(data.recharges);
-       setUser(data.user);
-       setWithdrawals(data.withdrawals);
-       setSupports(data.supports);
-     } catch (error) {
-       console.error(error);
-     } finally {
-       setLoading(false);
-     }
+  const fetchUserProfile = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`${baseUrl}/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setInjections(data.injections);
+      setOrders(data.orders);
+      setRecharges(data.recharges);
+      setUser(data.user);
+      setWithdrawals(data.withdrawals);
+      setSupports(data.supports);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
+  const getLeaderData = async () => {
+    const token = localStorage.getItem("leaderToken");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`${baseUrl}/leader/get-leader`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setLeader(data.leader);
+      setAllAdmins(data.admins);
+      setAllUsers(data.users);
+      setAllPayments(data.recharges);
+      setAllWithdrawals(data.withdrawals);
+      setAllSupports(data.supports);
+    } catch (error) {
+      console.log("Error fetching leader:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchUserProfile();
+    async function load() {
+      await fetchUserProfile();
+    }
+    load();
   }, []);
 
-
-   const getLeaderData = async () => {
-     try {
-       const token = localStorage.getItem("leaderToken");
-       const { data } = await axios.get(`${baseUrl}/leader/get-leader`, {
-         headers: {
-           Authorization: `Bearer ${token}`,
-         },
-       });
-
-       setLeader(data.leader);
-       setAllAdmins(data.admins);
-       setAllUsers(data.users);
-       setAllPayments(data.recharges);
-       setAllWithdrawals(data.withdrawals);
-       setAllSupports(data.supports);
-     } catch (error) {
-       console.log("Error fetching leader:", error);
-     }
-  };
-  
   useEffect(() => {
-    getLeaderData();
+    async function load() {
+      await getLeaderData();
+    }
+    load();
   }, []);
+
   return (
     <AppContext.Provider
       value={{

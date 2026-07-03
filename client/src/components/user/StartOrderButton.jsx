@@ -7,7 +7,7 @@ import PenguinLoader from "./PenguinLoader";
 import { baseUrl } from "../../../config/config";
 import { useApp } from "../../context/AppContext";
 export default function StartOrderButton() {
-  const { user, setUser } = useApp();
+  const { user, setUser, fetchUserProfile } = useApp();
   const userBalance = user?.balance;
   const [commissionArray, setCommissionArray] = useState([]);
   const [productCommission, setProductCommission] = useState(null);
@@ -54,6 +54,7 @@ export default function StartOrderButton() {
 
   // handle start
   const handleStartOrder = async () => {
+    await fetchUserProfile();
     setLoader(true);
     try {
       await delay(3000);
